@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+/* Kitchen screens are dark by design: high contrast, low glare, readable from a distance. */
+:root {
+  color-scheme: dark;
+  --bg: #0e1013;
+  --surface: #171a1f;
+  --surface-2: #20242b;
+  --text: #f3f4f6;
+  --muted: #9aa3ae;
+  --border: #2c313a;
+  --brand: #fb923c;
+  --brand-ink: #1a0f06;
+  --new: #38bdf8;
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --danger: #f87171;
+  --note: #fde68a;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-new: var(--new);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --color-note: var(--note);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+@keyframes arrive {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--new) 70%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 12px transparent;
+  }
+}
+.animate-arrive {
+  animation: arrive 1.4s ease-out 3;
+}

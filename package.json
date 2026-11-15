@@ -1,0 +1,18 @@
+{
+  "name": "qrmenu",
+  "private": true,
+  "packageManager": "pnpm@12.21.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "api:types": "pnpm --filter @qrmenu/api-client generate"
+  },
+  "devDependencies": {
+    "supabase": "^2.60.0",
+    "turbo": "^2.6.0"
+  }
+}
