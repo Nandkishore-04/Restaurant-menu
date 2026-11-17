@@ -16,14 +16,14 @@ export function JoinScreen({ qr, menu }: { qr: string; menu: PublicMenu }) {
         // eslint-disable-next-line @next/next/no-img-element -- restaurant-supplied URL
         <img src={menu.logo_url} alt="" className="mb-4 size-16 rounded-2xl object-cover" />
       )}
-      <p className="text-sm font-medium text-brand">Welcome to</p>
-      <h1 className="text-3xl font-bold tracking-tight">{menu.restaurant_name}</h1>
+      <p className="text-xs font-semibold tracking-[0.2em] text-accent uppercase">Welcome to</p>
+      <h1 className="mt-2 font-display text-4xl leading-tight font-semibold tracking-tight">{menu.restaurant_name}</h1>
       <p className="mt-1 text-muted">
         Table {menu.table_label} · {itemCount} dishes on the menu
       </p>
 
-      <div className="mt-8 flex gap-3 rounded-2xl bg-brand-soft p-4 text-sm">
-        <UsersIcon className="mt-0.5 shrink-0 text-brand" />
+      <div className="mt-8 flex gap-3 rounded-2xl bg-brand-soft p-4 text-sm text-brand">
+        <UsersIcon className="mt-0.5 shrink-0" />
         <p>
           Ordering together? Everyone at your table can scan the same QR code and add to{" "}
           <strong>one shared cart</strong>. No need to pass a phone around.

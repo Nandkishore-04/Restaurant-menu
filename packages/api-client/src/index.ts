@@ -6,6 +6,9 @@ export type PublicMenu = Schemas["PublicMenuOut"];
 export type Cart = Schemas["CartOut"];
 export type Order = Schemas["OrderOut"];
 export type OrderStatus = Schemas["OrderStatus"];
+export type Bill = Schemas["BillOut"];
+export type Payment = Schemas["PaymentOut"];
+export type PaymentMethod = Schemas["PaymentMethod"];
 
 /**
  * Typed client for the FastAPI backend. Types are generated from its OpenAPI schema:

@@ -47,7 +47,13 @@ def _jwks_client() -> jwt.PyJWKClient:
 async def verify_staff_token(token: str) -> StaffIdentity:
     settings = get_settings()
     try:
-        if settings.supabase_jwt_secret:
+        # Supabase signs with asymmetric keys (ES256/RS256, verified via the project's JWKS);
+        # older projects and legacy keys use a shared HS256 secret. During key rotation a
+        # project can issue both, so pick the method from the token's own header.
+        alg = jwt.get_unverified_header(token).get("alg")
+        if alg == "HS256":
+            if not settings.supabase_jwt_secret:
+                raise AuthError("HS256 tokens need SUPABASE_JWT_SECRET")
             claims = jwt.decode(
                 token, settings.supabase_jwt_secret, algorithms=["HS256"], audience="authenticated"
             )

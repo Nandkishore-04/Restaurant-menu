@@ -53,10 +53,16 @@ function Progress({ status }: { status: OrderStatus }) {
 export function OrdersSheet({
   orders,
   currency,
+  duePaise,
+  paidPaise,
+  onPay,
   onClose,
 }: {
   orders: Order[];
   currency: string;
+  duePaise: number;
+  paidPaise: number;
+  onPay: () => void;
   onClose: () => void;
 }) {
   const billable = orders.filter((o) => o.status !== "cancelled");
@@ -72,7 +78,20 @@ export function OrdersSheet({
               <span>Table total so far</span>
               <span>{formatMoney(tableTotal, currency)}</span>
             </div>
-            <p className="mt-1 text-xs text-muted">Ask the staff for the bill when you&apos;re done.</p>
+            {duePaise > 0 ? (
+              <button
+                type="button"
+                onClick={onPay}
+                className="mt-3 flex h-12 w-full items-center justify-between rounded-xl bg-brand px-5 font-semibold text-brand-ink"
+              >
+                <span>Pay bill</span>
+                <span className="tabular-nums">{formatMoney(duePaise, currency)}</span>
+              </button>
+            ) : paidPaise > 0 ? (
+              <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-ok">
+                <CheckIcon width={16} height={16} strokeWidth={3} /> Bill paid. Thank you!
+              </p>
+            ) : null}
           </div>
         )
       }

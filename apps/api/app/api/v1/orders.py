@@ -1,5 +1,6 @@
 """Kitchen / floor order management."""
 
+from datetime import date
 from typing import Annotated
 from uuid import UUID
 
@@ -24,9 +25,10 @@ async def list_orders(
     restaurant_id: UUID,
     status: Annotated[list[OrderStatus] | None, Query()] = None,
     limit: Annotated[int, Query(ge=1, le=500)] = 100,
+    day: Annotated[date | None, Query(description="Restaurant-local date, e.g. 2026-11-17")] = None,
 ) -> list[OrderOut]:
     async with tenant_session(restaurant_id) as db:
-        orders = await order_svc.list_orders(db, statuses=status, limit=limit)
+        orders = await order_svc.list_orders(db, statuses=status, limit=limit, day=day)
         return await order_svc.to_out(db, orders)
 
 

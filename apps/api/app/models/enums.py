@@ -29,6 +29,18 @@ class OrderStatus(StrEnum):
     CANCELLED = "cancelled"
 
 
+class PaymentMethod(StrEnum):
+    UPI = "upi"
+    CASH = "cash"
+
+
+class PaymentStatus(StrEnum):
+    PENDING = "pending"  # guest says they paid / asked to pay cash; staff must confirm
+    PAID = "paid"
+    REJECTED = "rejected"  # staff didn't receive it
+    CANCELLED = "cancelled"  # guest switched method
+
+
 # Allowed kitchen workflow transitions.
 ORDER_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
     OrderStatus.PLACED: {OrderStatus.ACCEPTED, OrderStatus.CANCELLED},

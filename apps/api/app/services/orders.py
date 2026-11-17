@@ -1,6 +1,7 @@
+from datetime import date
 from uuid import UUID
 
-from sqlalchemy import delete, select, text
+from sqlalchemy import delete, func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import GuestIdentity
@@ -116,8 +117,12 @@ async def list_orders(
     session_id: UUID | None = None,
     statuses: list[OrderStatus] | None = None,
     limit: int = 100,
+    day: date | None = None,
 ) -> list[Order]:
     stmt = select(Order).order_by(Order.created_at.desc()).limit(limit)
+    if day:
+        tz = (await db.execute(select(Restaurant.timezone))).scalar_one()
+        stmt = stmt.where(func.date(func.timezone(tz, Order.created_at)) == day)
     if session_id:
         stmt = stmt.where(Order.session_id == session_id)
     if statuses:

@@ -1,33 +1,38 @@
 @import "tailwindcss";
+@source "../../../../packages/ui/src";
 
+/* Professional, restaurant-grade palette: warm paper, deep green, brass accents. */
 :root {
-  --bg: #faf7f2;
+  color-scheme: light dark;
+  --bg: #f6f5f2;
   --surface: #ffffff;
-  --surface-2: #f3eee6;
-  --text: #1f1a14;
-  --muted: #6f655a;
-  --border: #e7dfd3;
-  --brand: #c2410c;
+  --surface-2: #efede8;
+  --text: #16181d;
+  --muted: #6b6f76;
+  --border: #e4e1da;
+  --brand: #1e3a33;
   --brand-ink: #ffffff;
-  --brand-soft: #fdebdd;
-  --veg: #15803d;
-  --nonveg: #b91c1c;
-  --egg: #ca8a04;
-  --ok: #15803d;
-  --danger: #b91c1c;
+  --brand-soft: #e7efec;
+  --accent: #9a7542;
+  --veg: #1f8a4c;
+  --nonveg: #b42318;
+  --egg: #b7791f;
+  --ok: #1f8a4c;
+  --danger: #b42318;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #14110e;
-    --surface: #1e1a16;
-    --surface-2: #29231d;
-    --text: #f4ede4;
-    --muted: #a99d90;
-    --border: #3a3129;
-    --brand: #fb923c;
-    --brand-ink: #1a0f06;
-    --brand-soft: #3b2414;
+    --bg: #0e1110;
+    --surface: #161a19;
+    --surface-2: #1f2423;
+    --text: #edede9;
+    --muted: #9ba19e;
+    --border: #2a302e;
+    --brand: #8fc9b4;
+    --brand-ink: #0e1110;
+    --brand-soft: #1c2a26;
+    --accent: #d4b27a;
     --veg: #4ade80;
     --nonveg: #f87171;
     --egg: #facc15;
@@ -46,20 +51,22 @@
   --color-brand: var(--brand);
   --color-brand-ink: var(--brand-ink);
   --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
   --color-veg: var(--veg);
   --color-nonveg: var(--nonveg);
   --color-egg: var(--egg);
   --color-ok: var(--ok);
   --color-danger: var(--danger);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-fraunces);
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
   -webkit-tap-highlight-color: transparent;
+  font-feature-settings: "cv11", "ss01";
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -80,5 +87,5 @@ body {
   }
 }
 .animate-sheet {
-  animation: sheet-up 180ms ease-out;
+  animation: sheet-up 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }

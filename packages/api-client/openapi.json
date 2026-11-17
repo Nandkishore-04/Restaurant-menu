@@ -354,6 +354,79 @@
         ]
       }
     },
+    "/v1/public/session/bill": {
+      "get": {
+        "tags": [
+          "public"
+        ],
+        "summary": "View Bill",
+        "operationId": "view_bill_v1_public_session_bill_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/public/session/payments": {
+      "post": {
+        "tags": [
+          "public"
+        ],
+        "summary": "Pay",
+        "description": "Record that the table is paying (UPI done, or cash requested). Staff confirm it.",
+        "operationId": "pay_v1_public_session_payments_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/v1/restaurants": {
       "post": {
         "tags": [
@@ -399,6 +472,64 @@
             "HTTPBearer": []
           }
         ]
+      }
+    },
+    "/v1/restaurants/{restaurant_id}": {
+      "patch": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Update Restaurant",
+        "operationId": "update_restaurant_v1_restaurants__restaurant_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RestaurantUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestaurantOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/v1/me/restaurants": {
@@ -577,6 +708,185 @@
         "responses": {
           "204": {
             "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/restaurants/{restaurant_id}/tables/live": {
+      "get": {
+        "tags": [
+          "tables"
+        ],
+        "summary": "Live Tables",
+        "operationId": "live_tables_v1_restaurants__restaurant_id__tables_live_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LiveTable"
+                  },
+                  "title": "Response Live Tables V1 Restaurants  Restaurant Id  Tables Live Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/restaurants/{restaurant_id}/tables/{table_id}": {
+      "patch": {
+        "tags": [
+          "tables"
+        ],
+        "summary": "Update Table",
+        "operationId": "update_table_v1_restaurants__restaurant_id__tables__table_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          },
+          {
+            "name": "table_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Table Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TableUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/restaurants/{restaurant_id}/tables/{table_id}/rotate-qr": {
+      "post": {
+        "tags": [
+          "tables"
+        ],
+        "summary": "Rotate Qr",
+        "description": "Issue a new QR code; the old printed one stops working (e.g. it was photographed).",
+        "operationId": "rotate_qr_v1_restaurants__restaurant_id__tables__table_id__rotate_qr_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          },
+          {
+            "name": "table_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Table Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableOut"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -1182,6 +1492,25 @@
               "default": 100,
               "title": "Limit"
             }
+          },
+          {
+            "name": "day",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Restaurant-local date, e.g. 2026-11-17",
+              "title": "Day"
+            },
+            "description": "Restaurant-local date, e.g. 2026-11-17"
           }
         ],
         "responses": {
@@ -1279,10 +1608,947 @@
           }
         }
       }
+    },
+    "/v1/restaurants/{restaurant_id}/payments": {
+      "get": {
+        "tags": [
+          "payments"
+        ],
+        "summary": "List Payments",
+        "operationId": "list_payments_v1_restaurants__restaurant_id__payments_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentStatus"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentOut"
+                  },
+                  "title": "Response List Payments V1 Restaurants  Restaurant Id  Payments Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/restaurants/{restaurant_id}/payments/{payment_id}/decision": {
+      "post": {
+        "tags": [
+          "payments"
+        ],
+        "summary": "Decide",
+        "operationId": "decide_v1_restaurants__restaurant_id__payments__payment_id__decision_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          },
+          {
+            "name": "payment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Payment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentDecision"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/restaurants/{restaurant_id}/members": {
+      "get": {
+        "tags": [
+          "staff"
+        ],
+        "summary": "List Members",
+        "operationId": "list_members_v1_restaurants__restaurant_id__members_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemberOut"
+                  },
+                  "title": "Response List Members V1 Restaurants  Restaurant Id  Members Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/restaurants/{restaurant_id}/members/{member_id}": {
+      "patch": {
+        "tags": [
+          "staff"
+        ],
+        "summary": "Update Member",
+        "operationId": "update_member_v1_restaurants__restaurant_id__members__member_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          },
+          {
+            "name": "member_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "staff"
+        ],
+        "summary": "Remove Member",
+        "operationId": "remove_member_v1_restaurants__restaurant_id__members__member_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          },
+          {
+            "name": "member_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Member Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/restaurants/{restaurant_id}/invites": {
+      "get": {
+        "tags": [
+          "staff"
+        ],
+        "summary": "List Invites",
+        "description": "Open invites only (not used, not cancelled, not expired).",
+        "operationId": "list_invites_v1_restaurants__restaurant_id__invites_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InviteOut"
+                  },
+                  "title": "Response List Invites V1 Restaurants  Restaurant Id  Invites Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "staff"
+        ],
+        "summary": "Create Invite",
+        "operationId": "create_invite_v1_restaurants__restaurant_id__invites_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/restaurants/{restaurant_id}/invites/{invite_id}": {
+      "delete": {
+        "tags": [
+          "staff"
+        ],
+        "summary": "Revoke Invite",
+        "operationId": "revoke_invite_v1_restaurants__restaurant_id__invites__invite_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          },
+          {
+            "name": "invite_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Invite Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/invites/{token}": {
+      "get": {
+        "tags": [
+          "staff"
+        ],
+        "summary": "Preview Invite",
+        "description": "Shown on the join page before signing in: which restaurant, which role.",
+        "operationId": "preview_invite_v1_invites__token__get",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitePreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/invites/{token}/accept": {
+      "post": {
+        "tags": [
+          "staff"
+        ],
+        "summary": "Accept Invite",
+        "operationId": "accept_invite_v1_invites__token__accept_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteAccepted"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/restaurants/{restaurant_id}/overview": {
+      "get": {
+        "tags": [
+          "overview"
+        ],
+        "summary": "Overview",
+        "operationId": "overview_v1_restaurants__restaurant_id__overview_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 90,
+              "minimum": 1,
+              "default": 7,
+              "title": "Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverviewStats"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/platform/me": {
+      "get": {
+        "tags": [
+          "platform"
+        ],
+        "summary": "Me",
+        "description": "Lets the dashboard decide whether to show the platform admin link.",
+        "operationId": "me_v1_platform_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformMe"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/platform/stats": {
+      "get": {
+        "tags": [
+          "platform"
+        ],
+        "summary": "Stats",
+        "operationId": "stats_v1_platform_stats_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 90,
+              "minimum": 7,
+              "default": 14,
+              "title": "Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformStats"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/platform/restaurants": {
+      "get": {
+        "tags": [
+          "platform"
+        ],
+        "summary": "Restaurants",
+        "operationId": "restaurants_v1_platform_restaurants_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "default": "",
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlatformRestaurant"
+                  },
+                  "title": "Response Restaurants V1 Platform Restaurants Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/platform/restaurants/{restaurant_id}": {
+      "patch": {
+        "tags": [
+          "platform"
+        ],
+        "summary": "Update Restaurant",
+        "description": "Suspend or reactivate. Suspended restaurants' QR codes stop accepting guests.",
+        "operationId": "update_restaurant_v1_platform_restaurants__restaurant_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlatformRestaurantUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformRestaurant"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "BillLine": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "unit_price_paise": {
+            "type": "integer",
+            "title": "Unit Price Paise"
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          },
+          "amount_paise": {
+            "type": "integer",
+            "title": "Amount Paise"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "unit_price_paise",
+          "quantity",
+          "amount_paise"
+        ],
+        "title": "BillLine"
+      },
+      "BillOut": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Session Id"
+          },
+          "restaurant_name": {
+            "type": "string",
+            "title": "Restaurant Name"
+          },
+          "table_label": {
+            "type": "string",
+            "title": "Table Label"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/BillLine"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "order_count": {
+            "type": "integer",
+            "title": "Order Count"
+          },
+          "subtotal_paise": {
+            "type": "integer",
+            "title": "Subtotal Paise"
+          },
+          "tax_paise": {
+            "type": "integer",
+            "title": "Tax Paise"
+          },
+          "total_paise": {
+            "type": "integer",
+            "title": "Total Paise"
+          },
+          "paid_paise": {
+            "type": "integer",
+            "title": "Paid Paise"
+          },
+          "due_paise": {
+            "type": "integer",
+            "title": "Due Paise"
+          },
+          "pending_payment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaymentOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "payments": {
+            "items": {
+              "$ref": "#/components/schemas/PaymentOut"
+            },
+            "type": "array",
+            "title": "Payments"
+          },
+          "upi": {
+            "$ref": "#/components/schemas/UpiInfo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "restaurant_name",
+          "table_label",
+          "currency",
+          "lines",
+          "order_count",
+          "subtotal_paise",
+          "tax_paise",
+          "total_paise",
+          "paid_paise",
+          "due_paise",
+          "pending_payment",
+          "payments",
+          "upi"
+        ],
+        "title": "BillOut"
+      },
       "CartItemAdd": {
         "properties": {
           "menu_item_id": {
@@ -1513,6 +2779,30 @@
         "type": "object",
         "title": "CategoryUpdate"
       },
+      "DayPoint": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "revenue_paise": {
+            "type": "integer",
+            "title": "Revenue Paise"
+          },
+          "orders": {
+            "type": "integer",
+            "title": "Orders"
+          }
+        },
+        "type": "object",
+        "required": [
+          "day",
+          "revenue_paise",
+          "orders"
+        ],
+        "title": "DayPoint"
+      },
       "Dietary": {
         "type": "string",
         "enum": [
@@ -1535,6 +2825,135 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "InviteAccepted": {
+        "properties": {
+          "restaurant_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Restaurant Id"
+          },
+          "role": {
+            "$ref": "#/components/schemas/MemberRole"
+          }
+        },
+        "type": "object",
+        "required": [
+          "restaurant_id",
+          "role"
+        ],
+        "title": "InviteAccepted"
+      },
+      "InviteCreate": {
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/MemberRole"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 254,
+                "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "title": "InviteCreate"
+      },
+      "InviteOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "role": {
+            "$ref": "#/components/schemas/MemberRole"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "link": {
+            "type": "string",
+            "title": "Link",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "email",
+          "expires_at",
+          "created_at"
+        ],
+        "title": "InviteOut"
+      },
+      "InvitePreview": {
+        "properties": {
+          "restaurant_name": {
+            "type": "string",
+            "title": "Restaurant Name"
+          },
+          "role": {
+            "$ref": "#/components/schemas/MemberRole"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "valid": {
+            "type": "boolean",
+            "title": "Valid"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "restaurant_name",
+          "role",
+          "expires_at",
+          "valid"
+        ],
+        "title": "InvitePreview"
       },
       "JoinSessionIn": {
         "properties": {
@@ -1581,6 +3000,160 @@
         ],
         "title": "JoinSessionOut"
       },
+      "LiveSession": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "opened_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Opened At"
+          },
+          "order_count": {
+            "type": "integer",
+            "title": "Order Count"
+          },
+          "total_paise": {
+            "type": "integer",
+            "title": "Total Paise"
+          },
+          "paid_paise": {
+            "type": "integer",
+            "title": "Paid Paise"
+          },
+          "due_paise": {
+            "type": "integer",
+            "title": "Due Paise"
+          },
+          "payment_pending": {
+            "type": "boolean",
+            "title": "Payment Pending"
+          },
+          "cart_items": {
+            "type": "integer",
+            "title": "Cart Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "opened_at",
+          "order_count",
+          "total_paise",
+          "paid_paise",
+          "due_paise",
+          "payment_pending",
+          "cart_items"
+        ],
+        "title": "LiveSession"
+      },
+      "LiveTable": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "seats": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seats"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "qr_token": {
+            "type": "string",
+            "title": "Qr Token"
+          },
+          "qr_url": {
+            "type": "string",
+            "title": "Qr Url"
+          },
+          "session": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LiveSession"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "seats",
+          "is_active",
+          "qr_token",
+          "qr_url",
+          "session"
+        ],
+        "title": "LiveTable"
+      },
+      "MemberOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "role": {
+            "$ref": "#/components/schemas/MemberRole"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "is_you": {
+            "type": "boolean",
+            "title": "Is You",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "email",
+          "role",
+          "created_at"
+        ],
+        "title": "MemberOut"
+      },
       "MemberRole": {
         "type": "string",
         "enum": [
@@ -1590,6 +3163,18 @@
           "kitchen"
         ],
         "title": "MemberRole"
+      },
+      "MemberUpdate": {
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/MemberRole"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "title": "MemberUpdate"
       },
       "MenuItemCreate": {
         "properties": {
@@ -2013,6 +3598,379 @@
         ],
         "title": "OrderStatusUpdate"
       },
+      "OverviewStats": {
+        "properties": {
+          "today_revenue_paise": {
+            "type": "integer",
+            "title": "Today Revenue Paise"
+          },
+          "today_orders": {
+            "type": "integer",
+            "title": "Today Orders"
+          },
+          "yesterday_revenue_paise": {
+            "type": "integer",
+            "title": "Yesterday Revenue Paise"
+          },
+          "yesterday_orders": {
+            "type": "integer",
+            "title": "Yesterday Orders"
+          },
+          "avg_order_paise": {
+            "type": "integer",
+            "title": "Avg Order Paise"
+          },
+          "collected_today_paise": {
+            "type": "integer",
+            "title": "Collected Today Paise"
+          },
+          "pending_payments": {
+            "type": "integer",
+            "title": "Pending Payments"
+          },
+          "open_tables": {
+            "type": "integer",
+            "title": "Open Tables"
+          },
+          "total_tables": {
+            "type": "integer",
+            "title": "Total Tables"
+          },
+          "live_orders": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Live Orders"
+          },
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/DayPoint"
+            },
+            "type": "array",
+            "title": "Series"
+          },
+          "top_dishes": {
+            "items": {
+              "$ref": "#/components/schemas/TopDish"
+            },
+            "type": "array",
+            "title": "Top Dishes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "today_revenue_paise",
+          "today_orders",
+          "yesterday_revenue_paise",
+          "yesterday_orders",
+          "avg_order_paise",
+          "collected_today_paise",
+          "pending_payments",
+          "open_tables",
+          "total_tables",
+          "live_orders",
+          "series",
+          "top_dishes"
+        ],
+        "title": "OverviewStats"
+      },
+      "PaymentCreate": {
+        "properties": {
+          "method": {
+            "$ref": "#/components/schemas/PaymentMethod"
+          },
+          "reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9]{6,40}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference"
+          }
+        },
+        "type": "object",
+        "required": [
+          "method"
+        ],
+        "title": "PaymentCreate"
+      },
+      "PaymentDecision": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/PaymentStatus",
+            "description": "paid or rejected"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "PaymentDecision"
+      },
+      "PaymentMethod": {
+        "type": "string",
+        "enum": [
+          "upi",
+          "cash"
+        ],
+        "title": "PaymentMethod"
+      },
+      "PaymentOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "method": {
+            "$ref": "#/components/schemas/PaymentMethod"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PaymentStatus"
+          },
+          "amount_paise": {
+            "type": "integer",
+            "title": "Amount Paise"
+          },
+          "reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference"
+          },
+          "guest_name": {
+            "type": "string",
+            "title": "Guest Name"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "confirmed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmed At"
+          },
+          "table_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Table Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "method",
+          "status",
+          "amount_paise",
+          "reference",
+          "guest_name",
+          "created_at",
+          "confirmed_at"
+        ],
+        "title": "PaymentOut"
+      },
+      "PaymentStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "paid",
+          "rejected",
+          "cancelled"
+        ],
+        "title": "PaymentStatus"
+      },
+      "PlatformMe": {
+        "properties": {
+          "is_platform_admin": {
+            "type": "boolean",
+            "title": "Is Platform Admin"
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_platform_admin"
+        ],
+        "title": "PlatformMe"
+      },
+      "PlatformRestaurant": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "owner_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Email"
+          },
+          "tables": {
+            "type": "integer",
+            "title": "Tables"
+          },
+          "staff": {
+            "type": "integer",
+            "title": "Staff"
+          },
+          "orders_30d": {
+            "type": "integer",
+            "title": "Orders 30D"
+          },
+          "gmv_30d_paise": {
+            "type": "integer",
+            "title": "Gmv 30D Paise"
+          },
+          "last_order_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Order At"
+          },
+          "upi_configured": {
+            "type": "boolean",
+            "title": "Upi Configured"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "is_active",
+          "created_at",
+          "owner_email",
+          "tables",
+          "staff",
+          "orders_30d",
+          "gmv_30d_paise",
+          "last_order_at",
+          "upi_configured"
+        ],
+        "title": "PlatformRestaurant"
+      },
+      "PlatformRestaurantUpdate": {
+        "properties": {
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_active"
+        ],
+        "title": "PlatformRestaurantUpdate"
+      },
+      "PlatformStats": {
+        "properties": {
+          "restaurants": {
+            "type": "integer",
+            "title": "Restaurants"
+          },
+          "active_restaurants": {
+            "type": "integer",
+            "title": "Active Restaurants"
+          },
+          "new_restaurants_30d": {
+            "type": "integer",
+            "title": "New Restaurants 30D"
+          },
+          "orders_today": {
+            "type": "integer",
+            "title": "Orders Today"
+          },
+          "gmv_today_paise": {
+            "type": "integer",
+            "title": "Gmv Today Paise"
+          },
+          "orders_30d": {
+            "type": "integer",
+            "title": "Orders 30D"
+          },
+          "gmv_30d_paise": {
+            "type": "integer",
+            "title": "Gmv 30D Paise"
+          },
+          "open_tables": {
+            "type": "integer",
+            "title": "Open Tables"
+          },
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/DayPoint"
+            },
+            "type": "array",
+            "title": "Series"
+          }
+        },
+        "type": "object",
+        "required": [
+          "restaurants",
+          "active_restaurants",
+          "new_restaurants_30d",
+          "orders_today",
+          "gmv_today_paise",
+          "orders_30d",
+          "gmv_30d_paise",
+          "open_tables",
+          "series"
+        ],
+        "title": "PlatformStats"
+      },
       "PublicMenuOut": {
         "properties": {
           "restaurant_name": {
@@ -2107,6 +4065,30 @@
             "type": "boolean",
             "title": "Prices Include Tax",
             "default": false
+          },
+          "upi_vpa": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9.\\-_]{2,256}@[a-zA-Z][a-zA-Z0-9]{1,63}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upi Vpa"
+          },
+          "upi_payee_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upi Payee Name"
           }
         },
         "type": "object",
@@ -2154,6 +4136,28 @@
             "type": "boolean",
             "title": "Prices Include Tax"
           },
+          "upi_vpa": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upi Vpa"
+          },
+          "upi_payee_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upi Payee Name"
+          },
           "is_active": {
             "type": "boolean",
             "title": "Is Active"
@@ -2168,9 +4172,90 @@
           "currency",
           "tax_rate_bps",
           "prices_include_tax",
+          "upi_vpa",
+          "upi_payee_name",
           "is_active"
         ],
         "title": "RestaurantOut"
+      },
+      "RestaurantUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "logo_url": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logo Url"
+          },
+          "tax_rate_bps": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2800.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Rate Bps"
+          },
+          "prices_include_tax": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prices Include Tax"
+          },
+          "upi_vpa": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9.\\-_]{2,256}@[a-zA-Z][a-zA-Z0-9]{1,63}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upi Vpa"
+          },
+          "upi_payee_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upi Payee Name"
+          }
+        },
+        "type": "object",
+        "title": "RestaurantUpdate"
       },
       "TableCreate": {
         "properties": {
@@ -2246,6 +4331,72 @@
         ],
         "title": "TableOut"
       },
+      "TableUpdate": {
+        "properties": {
+          "label": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "seats": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seats"
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active"
+          }
+        },
+        "type": "object",
+        "title": "TableUpdate"
+      },
+      "TopDish": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          },
+          "revenue_paise": {
+            "type": "integer",
+            "title": "Revenue Paise"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "quantity",
+          "revenue_paise"
+        ],
+        "title": "TopDish"
+      },
       "Totals": {
         "properties": {
           "subtotal_paise": {
@@ -2268,6 +4419,34 @@
           "total_paise"
         ],
         "title": "Totals"
+      },
+      "UpiInfo": {
+        "properties": {
+          "vpa": {
+            "type": "string",
+            "title": "Vpa"
+          },
+          "payee_name": {
+            "type": "string",
+            "title": "Payee Name"
+          },
+          "uri": {
+            "type": "string",
+            "title": "Uri"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vpa",
+          "payee_name",
+          "uri",
+          "is_demo"
+        ],
+        "title": "UpiInfo"
       },
       "ValidationError": {
         "properties": {

@@ -30,6 +30,8 @@ class Settings(BaseSettings):
 
     # Customer-facing web app; used to build QR code URLs.
     public_web_url: str = "http://localhost:3000"
+    # Staff dashboard; used to build invite links.
+    dashboard_url: str = "http://localhost:3001"
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:3001"]
 
 

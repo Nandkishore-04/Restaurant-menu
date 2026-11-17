@@ -9,9 +9,10 @@ import { ItemCard } from "@/components/item-card";
 import { ItemSheet } from "@/components/item-sheet";
 import { JoinScreen } from "@/components/join-screen";
 import { OrdersSheet } from "@/components/orders-sheet";
+import { PaymentPage } from "@/components/payment-page";
 import { useGuestSession, type GuestSession } from "@/lib/guest-session";
 import { useLiveChannel } from "@/lib/live";
-import { useCart, useCartActions, useMenu, useOrders } from "@/lib/queries";
+import { useBill, useCart, useCartActions, useMenu, useOrders } from "@/lib/queries";
 
 type MenuItem = Schemas["MenuItemOut"];
 
@@ -51,9 +52,10 @@ function TableExperience({ qr, menu, session }: { qr: string; menu: PublicMenu; 
   const cart = useCart(qr, session);
   const orders = useOrders(qr, session);
   const actions = useCartActions(qr, session);
+  const bill = useBill(qr, session);
   useLiveChannel(session.channel);
 
-  const [view, setView] = useState<"menu" | "cart" | "orders">("menu");
+  const [view, setView] = useState<"menu" | "cart" | "orders" | "pay">("menu");
   const [openItem, setOpenItem] = useState<MenuItem | null>(null);
   const [search, setSearch] = useState("");
   const [vegOnly, setVegOnly] = useState(false);
@@ -87,6 +89,15 @@ function TableExperience({ qr, menu, session }: { qr: string; menu: PublicMenu; 
       .filter((c) => c.items.length > 0);
   }, [menu.categories, search, vegOnly]);
 
+  const dishes = useMemo(() => {
+    const map = new Map<string, { imageUrl: string | null; category: string }>();
+    for (const c of menu.categories)
+      for (const i of c.items ?? []) map.set(i.id, { imageUrl: i.image_url ?? null, category: c.name });
+    return map;
+  }, [menu.categories]);
+  const dishInfo = (id: string) => dishes.get(id);
+  const categoryOf = (item: MenuItem) => dishes.get(item.id)?.category ?? "";
+
   // My own plain line for an item (no note) drives the inline +/- on the menu card.
   const myLine = (itemId: string) =>
     lines.find((l) => l.menu_item_id === itemId && l.guest_id === session.guestId && !l.note);
@@ -115,7 +126,9 @@ function TableExperience({ qr, menu, session }: { qr: string; menu: PublicMenu; 
       <header className="sticky top-0 z-20 border-b border-border bg-bg/95 backdrop-blur">
         <div className="flex items-center justify-between gap-3 px-4 pt-4 pb-3">
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-bold tracking-tight">{menu.restaurant_name}</h1>
+            <h1 className="truncate font-display text-2xl leading-tight font-semibold tracking-tight">
+              {menu.restaurant_name}
+            </h1>
             <p className="text-sm text-muted">
               Table {menu.table_label} · Hi, {session.guestName}
             </p>
@@ -165,7 +178,7 @@ function TableExperience({ qr, menu, session }: { qr: string; menu: PublicMenu; 
               <a
                 key={c.id}
                 href={`#cat-${c.id}`}
-                className="shrink-0 rounded-full border border-border bg-surface px-3.5 py-1.5 text-sm font-medium whitespace-nowrap"
+                className="shrink-0 rounded-full border border-border bg-surface px-4 py-1.5 text-sm font-medium whitespace-nowrap transition hover:border-brand hover:text-brand"
               >
                 {c.name}
               </a>
@@ -179,9 +192,10 @@ function TableExperience({ qr, menu, session }: { qr: string; menu: PublicMenu; 
           <p className="py-16 text-center text-muted">No dishes match your search.</p>
         )}
         {visible.map((c) => (
-          <section key={c.id} id={`cat-${c.id}`} className="scroll-mt-44 pt-5">
-            <h2 className="text-lg font-bold">
-              {c.name} <span className="text-sm font-normal text-muted">({c.items.length})</span>
+          <section key={c.id} id={`cat-${c.id}`} className="scroll-mt-44 pt-7">
+            <h2 className="flex items-baseline gap-2 font-display text-xl font-semibold">
+              {c.name}
+              <span className="font-sans text-sm font-normal text-muted">{c.items.length} items</span>
             </h2>
             <ul className="divide-y divide-border">
               {c.items.map((item) => {
@@ -190,6 +204,7 @@ function TableExperience({ qr, menu, session }: { qr: string; menu: PublicMenu; 
                   <ItemCard
                     key={item.id}
                     item={item}
+                    category={c.name}
                     currency={menu.currency}
                     myQty={mine?.quantity ?? 0}
                     othersQty={othersQty(item.id)}
@@ -204,6 +219,26 @@ function TableExperience({ qr, menu, session }: { qr: string; menu: PublicMenu; 
           </section>
         ))}
       </main>
+
+      {cartCount === 0 && view === "menu" && bill.data && bill.data.due_paise > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-2xl p-4">
+          <button
+            type="button"
+            onClick={() => setView("pay")}
+            className="animate-sheet flex h-14 w-full items-center justify-between rounded-2xl bg-brand px-5 text-brand-ink shadow-xl"
+          >
+            <span className="text-left">
+              <span className="block text-sm font-semibold">
+                {bill.data.pending_payment ? "Payment in progress" : "Done eating? Pay your bill"}
+              </span>
+              <span className="block text-xs opacity-85 tabular-nums">
+                {formatMoney(bill.data.due_paise, menu.currency)} · UPI or cash
+              </span>
+            </span>
+            <span className="font-semibold">Pay bill →</span>
+          </button>
+        </div>
+      )}
 
       {cartCount > 0 && view === "menu" && (
         <div className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-2xl p-4">
@@ -233,6 +268,7 @@ function TableExperience({ qr, menu, session }: { qr: string; menu: PublicMenu; 
       {openItem && (
         <ItemSheet
           item={openItem}
+          category={categoryOf(openItem)}
           currency={menu.currency}
           busy={actions.add.isPending}
           onAdd={(q, note) => addItem(openItem, q, note.trim() || null)}
@@ -245,6 +281,7 @@ function TableExperience({ qr, menu, session }: { qr: string; menu: PublicMenu; 
           currency={menu.currency}
           tableLabel={menu.table_label}
           myGuestId={session.guestId}
+          dishInfo={dishInfo}
           busy={busy}
           placing={actions.placeOrder.isPending}
           onChangeQty={changeQty}
@@ -261,7 +298,23 @@ function TableExperience({ qr, menu, session }: { qr: string; menu: PublicMenu; 
         />
       )}
       {view === "orders" && (
-        <OrdersSheet orders={orders.data ?? []} currency={menu.currency} onClose={() => setView("menu")} />
+        <OrdersSheet
+          orders={orders.data ?? []}
+          currency={menu.currency}
+          duePaise={bill.data?.due_paise ?? 0}
+          paidPaise={bill.data?.paid_paise ?? 0}
+          onPay={() => setView("pay")}
+          onClose={() => setView("menu")}
+        />
+      )}
+      {view === "pay" && bill.data && (
+        <PaymentPage
+          qr={qr}
+          session={session}
+          bill={bill.data}
+          onClose={() => setView("menu")}
+          onToast={showToast}
+        />
       )}
 
       {toast && (

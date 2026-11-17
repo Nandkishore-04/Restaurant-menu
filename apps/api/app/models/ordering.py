@@ -15,7 +15,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TenantScoped, Timestamps, UUIDPrimaryKey, str_enum
-from app.models.enums import OrderStatus, SessionStatus
+from app.models.enums import OrderStatus, PaymentMethod, PaymentStatus, SessionStatus
 
 
 class TableSession(UUIDPrimaryKey, TenantScoped, Base):
@@ -99,3 +99,25 @@ class OrderItem(UUIDPrimaryKey, TenantScoped, Base):
     line_total_paise: Mapped[int] = mapped_column(Integer)
     note: Mapped[str | None] = mapped_column(String(200))
     guest_name: Mapped[str] = mapped_column(String(40))
+
+
+class Payment(UUIDPrimaryKey, TenantScoped, Timestamps, Base):
+    """A table's bill payment. Guests initiate it; staff confirm the money arrived."""
+
+    __tablename__ = "payments"
+
+    session_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("table_sessions.id", ondelete="CASCADE"), index=True
+    )
+    table_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("dining_tables.id", ondelete="CASCADE"), index=True
+    )
+    method: Mapped[PaymentMethod] = mapped_column(str_enum(PaymentMethod))
+    status: Mapped[PaymentStatus] = mapped_column(
+        str_enum(PaymentStatus), server_default=PaymentStatus.PENDING.value, index=True
+    )
+    amount_paise: Mapped[int] = mapped_column(Integer)
+    reference: Mapped[str | None] = mapped_column(String(40))  # UPI transaction id (UTR)
+    guest_id: Mapped[uuid.UUID]
+    guest_name: Mapped[str] = mapped_column(String(40))
+    confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

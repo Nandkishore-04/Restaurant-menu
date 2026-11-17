@@ -25,6 +25,7 @@ from app.schemas.restaurant import (
     MyRestaurantOut,
     RestaurantCreate,
     RestaurantOut,
+    RestaurantUpdate,
     TableCreate,
     TableOut,
 )
@@ -53,13 +54,37 @@ async def create_restaurant(body: RestaurantCreate, staff: Staff) -> Restaurant:
             await db.flush()
             db.add(
                 RestaurantMember(
-                    restaurant_id=restaurant.id, user_id=staff.user_id, role=MemberRole.OWNER
+                    restaurant_id=restaurant.id,
+                    user_id=staff.user_id,
+                    role=MemberRole.OWNER,
+                    email=staff.email,
                 )
             )
             await db.flush()
             await db.refresh(restaurant)
     except IntegrityError as exc:
         raise Conflict("That restaurant URL (slug) is already taken") from exc
+    return restaurant
+
+
+@router.patch(
+    "/restaurants/{restaurant_id}",
+    response_model=RestaurantOut,
+    dependencies=[Depends(require_member(MENU_EDITORS))],
+)
+async def update_restaurant(restaurant_id: UUID, body: RestaurantUpdate) -> Restaurant:
+    async with tenant_session(restaurant_id) as db:
+        restaurant = await db.get(Restaurant, restaurant_id)
+        if restaurant is None:
+            raise NotFound("Restaurant not found")
+        changes = body.model_dump(exclude_unset=True)
+        for field in ("name", "tax_rate_bps", "prices_include_tax"):
+            if changes.get(field, 0) is None:
+                del changes[field]
+        for field, value in changes.items():
+            setattr(restaurant, field, value)
+        await db.flush()
+        await db.refresh(restaurant)
     return restaurant
 
 

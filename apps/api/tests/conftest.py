@@ -63,10 +63,18 @@ async def client(publisher: NoopPublisher) -> AsyncIterator[httpx.AsyncClient]:
         yield c
 
 
-def staff_token(user_id: uuid.UUID) -> str:
+def staff_token(user_id: uuid.UUID, email: str | None = None) -> str:
     now = datetime.now(UTC)
+    claims = {
+        "sub": str(user_id),
+        "aud": "authenticated",
+        "iat": now,
+        "exp": now + timedelta(hours=1),
+    }
+    if email:
+        claims["email"] = email
     return jwt.encode(
-        {"sub": str(user_id), "aud": "authenticated", "iat": now, "exp": now + timedelta(hours=1)},
+        claims,
         STAFF_JWT_SECRET,
         algorithm="HS256",
     )

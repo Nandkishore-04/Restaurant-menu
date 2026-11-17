@@ -6,7 +6,18 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.v1 import health, menu, orders, public, restaurants
+from app.api.v1 import (
+    health,
+    menu,
+    orders,
+    payments,
+    platform,
+    public,
+    restaurants,
+    staff,
+    stats,
+    tables,
+)
 from app.core.config import get_settings
 from app.db.session import engine
 from app.services.errors import DomainError
@@ -37,7 +48,18 @@ def create_app() -> FastAPI:
     async def domain_error_handler(_: Request, exc: DomainError) -> JSONResponse:
         return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
-    for module in (health, public, restaurants, menu, orders):
+    for module in (
+        health,
+        public,
+        restaurants,
+        tables,
+        menu,
+        orders,
+        payments,
+        staff,
+        stats,
+        platform,
+    ):
         app.include_router(module.router)
     return app
 

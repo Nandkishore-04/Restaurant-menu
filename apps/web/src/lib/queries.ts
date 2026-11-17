@@ -1,6 +1,6 @@
 "use client";
 
-import type { Cart, Order, PublicMenu } from "@qrmenu/api-client";
+import type { Bill, Cart, Order, PaymentMethod, PublicMenu } from "@qrmenu/api-client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, ApiError, bearer, unwrap } from "./api";
 import { POLL_MS } from "./config";
@@ -109,8 +109,37 @@ export function useCartActions(qr: string, s: GuestSession) {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["cart", s.sessionId] });
       void qc.invalidateQueries({ queryKey: ["orders", s.sessionId] });
+      void qc.invalidateQueries({ queryKey: ["bill", s.sessionId] });
     },
     onError,
   });
   return { add, setQty, placeOrder };
+}
+
+export function useBill(qr: string, s: GuestSession) {
+  return useQuery<Bill, ApiError>({
+    queryKey: ["bill", s.sessionId],
+    queryFn: () =>
+      unwrap(api.GET("/v1/public/session/bill", { headers: bearer(s.token) })).catch((e) =>
+        handleSessionEnd(qr, e),
+      ),
+    refetchInterval: POLL_MS,
+  });
+}
+
+export function usePay(qr: string, s: GuestSession) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (v: { method: PaymentMethod; reference?: string | null }) =>
+      unwrap(
+        api.POST("/v1/public/session/payments", {
+          headers: bearer(s.token),
+          body: { method: v.method, reference: v.reference || null },
+        }),
+      ),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["bill", s.sessionId] }),
+    onError: (e) => {
+      if (e instanceof ApiError && (e.status === 401 || e.status === 410)) clearGuestSession(qr);
+    },
+  });
 }

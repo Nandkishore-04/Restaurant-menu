@@ -1,6 +1,7 @@
 "use client";
 
 import { formatMoney, type Schemas } from "@qrmenu/api-client";
+import { DishImage } from "@qrmenu/ui";
 import { useState } from "react";
 import { DietMark } from "./diet-mark";
 import { Sheet } from "./sheet";
@@ -8,6 +9,7 @@ import { Stepper } from "./stepper";
 
 type Props = {
   item: Schemas["MenuItemOut"];
+  category: string;
   currency: string;
   busy: boolean;
   onAdd: (quantity: number, note: string) => void;
@@ -15,7 +17,7 @@ type Props = {
 };
 
 /** Item details with quantity + kitchen note ("less spicy", "no onion"). */
-export function ItemSheet({ item, currency, busy, onAdd, onClose }: Props) {
+export function ItemSheet({ item, category, currency, busy, onAdd, onClose }: Props) {
   const [qty, setQty] = useState(1);
   const [note, setNote] = useState("");
   return (
@@ -44,10 +46,14 @@ export function ItemSheet({ item, currency, busy, onAdd, onClose }: Props) {
         )
       }
     >
-      {item.image_url && (
-        // eslint-disable-next-line @next/next/no-img-element -- restaurant-supplied URLs
-        <img src={item.image_url} alt="" className="mb-4 aspect-video w-full rounded-2xl object-cover" />
-      )}
+      <DishImage
+        name={item.name}
+        category={category}
+        imageUrl={item.image_url}
+        soldOut={!item.is_available}
+        iconSize={56}
+        className="mb-5 aspect-[16/10] w-full rounded-2xl"
+      />
       <p className="text-lg font-semibold tabular-nums">{formatMoney(item.price_paise, currency)}</p>
       {item.description && <p className="mt-2 text-muted">{item.description}</p>}
       {item.is_available && (

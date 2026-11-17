@@ -1,6 +1,7 @@
 "use client";
 
 import { formatMoney, type Cart } from "@qrmenu/api-client";
+import { DishImage } from "@qrmenu/ui";
 import { useState } from "react";
 import { Sheet } from "./sheet";
 import { Stepper } from "./stepper";
@@ -10,6 +11,8 @@ type Props = {
   currency: string;
   tableLabel: string;
   myGuestId: string;
+  /** menu_item_id -> photo + category, for thumbnails */
+  dishInfo: (menuItemId: string) => { imageUrl: string | null; category: string } | undefined;
   busy: boolean;
   placing: boolean;
   onChangeQty: (lineId: string, next: number) => void;
@@ -71,7 +74,7 @@ export function CartSheet(p: Props) {
 
   return (
     <Sheet title={`Table ${p.tableLabel} cart`} onClose={p.onClose} footer={footer}>
-      <p className="mb-4 rounded-xl bg-brand-soft px-3 py-2 text-sm">
+      <p className="mb-5 rounded-xl bg-brand-soft px-4 py-3 text-sm text-brand">
         Everyone at this table shares this cart. What you add shows up on their phones, and anyone
         can place the order.
       </p>
@@ -91,6 +94,13 @@ export function CartSheet(p: Props) {
               <ul className="divide-y divide-border">
                 {g.lines.map((line) => (
                   <li key={line.id} className="flex items-center gap-3 py-3">
+                    <DishImage
+                      name={line.name}
+                      category={p.dishInfo(line.menu_item_id)?.category}
+                      imageUrl={p.dishInfo(line.menu_item_id)?.imageUrl}
+                      iconSize={20}
+                      className="size-12 shrink-0 rounded-xl"
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="font-medium">{line.name}</p>
                       {line.note && <p className="text-sm text-muted italic">“{line.note}”</p>}

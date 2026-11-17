@@ -14,7 +14,7 @@ from app.core.security import (
     verify_staff_token,
 )
 from app.db.session import system_session
-from app.models import MemberRole, RestaurantMember
+from app.models import MemberRole, PlatformAdmin, RestaurantMember
 from app.services.realtime import Publisher
 
 _bearer = HTTPBearer(auto_error=False)
@@ -56,6 +56,7 @@ Pub = Annotated[Publisher, Depends(get_publisher)]
 ALL_ROLES = frozenset(MemberRole)
 MENU_EDITORS = frozenset({MemberRole.OWNER, MemberRole.MANAGER})
 FLOOR_STAFF = frozenset({MemberRole.OWNER, MemberRole.MANAGER, MemberRole.STAFF})
+OWNERS = frozenset({MemberRole.OWNER})
 
 
 def require_member(
@@ -76,3 +77,15 @@ def require_member(
         return member
 
     return dependency
+
+
+async def require_platform_admin(staff: Staff) -> StaffIdentity:
+    """Dependency: caller must be a SaaS operator (row in platform_admins)."""
+    async with system_session() as db:
+        admin = await db.get(PlatformAdmin, staff.user_id)
+    if admin is None:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Platform admins only")
+    return staff
+
+
+PlatformAdminUser = Annotated[StaffIdentity, Depends(require_platform_admin)]

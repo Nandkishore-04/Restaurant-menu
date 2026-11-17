@@ -18,8 +18,10 @@ from app.schemas.ordering import (
     JoinSessionOut,
     OrderOut,
 )
+from app.schemas.payments import BillOut, PaymentCreate, PaymentOut
 from app.services import cart as cart_svc
 from app.services import orders as order_svc
+from app.services import payments as pay_svc
 from app.services.realtime import restaurant_channel, session_channel
 from app.services.sessions import get_open_session, get_or_open_session, resolve_qr_token
 
@@ -143,3 +145,22 @@ async def my_table_orders(guest: Guest) -> list[OrderOut]:
     async with tenant_session(guest.restaurant_id) as db:
         orders = await order_svc.list_orders(db, session_id=guest.session_id)
         return await order_svc.to_out(db, orders)
+
+
+@router.get("/session/bill", response_model=BillOut)
+async def view_bill(guest: Guest) -> BillOut:
+    async with tenant_session(guest.restaurant_id) as db:
+        session = await get_open_session(db, guest.session_id)
+        return await pay_svc.get_bill(db, session)
+
+
+@router.post("/session/payments", response_model=PaymentOut, status_code=status.HTTP_201_CREATED)
+async def pay(body: PaymentCreate, guest: Guest, pub: Pub) -> PaymentOut:
+    """Record that the table is paying (UPI done, or cash requested). Staff confirm it."""
+    async with tenant_session(guest.restaurant_id) as db:
+        payment = await pay_svc.start_payment(db, guest, body.method, body.reference)
+        out = PaymentOut.model_validate(payment)
+    payload = {"payment_id": str(payment.id), "method": payment.method.value}
+    await pub.publish(session_channel(guest.session_id), "payment_updated", payload)
+    await pub.publish(restaurant_channel(guest.restaurant_id), "payment_requested", payload)
+    return out
