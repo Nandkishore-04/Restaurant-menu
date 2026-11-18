@@ -8,13 +8,13 @@ import { getSupabase } from "./supabase";
 export type AuthState =
   | { status: "loading" }
   | { status: "signedOut" }
-  | { status: "signedIn"; via: "supabase" | "dev"; email: string | null };
+  | { status: "signedIn"; email: string | null };
 
-const DEV_KEY = "qrmenu.devStaffToken";
 const LOADING: AuthState = { status: "loading" };
+// Key used by the removed dev-token login; cleared so old tokens can't sign anyone in.
+const LEGACY_DEV_KEY = "qrmenu.devStaffToken";
 
 let state: AuthState = LOADING;
-let devToken: string | null = null;
 let supaSession: Session | null = null;
 let ready = false;
 let started = false;
@@ -22,9 +22,7 @@ const listeners = new Set<() => void>();
 
 function recompute() {
   if (!ready) state = LOADING;
-  else if (devToken) state = { status: "signedIn", via: "dev", email: null };
-  else if (supaSession)
-    state = { status: "signedIn", via: "supabase", email: supaSession.user.email ?? null };
+  else if (supaSession) state = { status: "signedIn", email: supaSession.user.email ?? null };
   else state = { status: "signedOut" };
   listeners.forEach((l) => l());
 }
@@ -33,9 +31,9 @@ function start() {
   if (started) return;
   started = true;
   try {
-    devToken = localStorage.getItem(DEV_KEY);
+    localStorage.removeItem(LEGACY_DEV_KEY);
   } catch {
-    devToken = null;
+    /* storage blocked: nothing to clear */
   }
   const supabase = SUPABASE_AUTH_ENABLED ? getSupabase() : null;
   if (!supabase) {
@@ -70,31 +68,13 @@ export function useAuth(): AuthState {
 
 export async function getAccessToken(): Promise<string | null> {
   start();
-  if (devToken) return devToken;
   const supabase = SUPABASE_AUTH_ENABLED ? getSupabase() : null;
   if (!supabase) return null;
   const { data } = await supabase.auth.getSession();
   return data.session?.access_token ?? null;
 }
 
-export function signInWithDevToken(token: string) {
-  devToken = token.trim();
-  try {
-    localStorage.setItem(DEV_KEY, devToken);
-  } catch {
-    /* keep in memory */
-  }
-  ready = true;
-  recompute();
-}
-
 export async function signOut() {
-  devToken = null;
-  try {
-    localStorage.removeItem(DEV_KEY);
-  } catch {
-    /* ignore */
-  }
   const supabase = SUPABASE_AUTH_ENABLED ? getSupabase() : null;
   if (supabase) await supabase.auth.signOut();
   supaSession = null;

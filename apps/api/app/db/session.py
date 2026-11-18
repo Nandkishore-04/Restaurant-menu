@@ -18,6 +18,7 @@ from uuid import UUID
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
 
 from app.core.config import get_settings
 
@@ -28,7 +29,13 @@ _connect_args = (
     else {}
 )
 
-engine = create_async_engine(_settings.database_url, pool_pre_ping=True, connect_args=_connect_args)
+# Behind Supabase's transaction pooler (serverless hosting), the pooler owns connection
+# reuse: keep no pool in-process, so short-lived function instances never hold sockets.
+engine = (
+    create_async_engine(_settings.database_url, poolclass=NullPool, connect_args=_connect_args)
+    if _settings.database_use_pooler
+    else create_async_engine(_settings.database_url, pool_pre_ping=True)
+)
 SessionFactory = async_sessionmaker(engine, expire_on_commit=False)
 
 

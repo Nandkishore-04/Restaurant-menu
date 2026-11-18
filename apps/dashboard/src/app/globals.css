@@ -1,21 +1,26 @@
 @import "tailwindcss";
+@source "../../../../packages/ui/src";
 
 /* Kitchen screens are dark by design: high contrast, low glare, readable from a distance. */
 :root {
   color-scheme: dark;
-  --bg: #0e1013;
-  --surface: #171a1f;
-  --surface-2: #20242b;
-  --text: #f3f4f6;
-  --muted: #9aa3ae;
-  --border: #2c313a;
-  --brand: #fb923c;
-  --brand-ink: #1a0f06;
-  --new: #38bdf8;
+  --bg: #0f1214;
+  --surface: #161a1e;
+  --surface-2: #1e2328;
+  --text: #eef0f2;
+  --muted: #98a2ad;
+  --border: #2a3036;
+  --brand: #d9b77e;
+  --brand-ink: #1a1408;
+  --new: #60a5fa;
+  --violet: #a78bfa;
   --ok: #4ade80;
   --warn: #fbbf24;
   --danger: #f87171;
   --note: #fde68a;
+  /* Data marks: validated (lightness band, chroma, 3:1 vs surface) for this dark surface. */
+  --chart: #b8862f;
+  --chart-hover: #d4a23c;
 }
 
 @theme inline {
@@ -28,18 +33,28 @@
   --color-brand: var(--brand);
   --color-brand-ink: var(--brand-ink);
   --color-new: var(--new);
+  --color-violet: var(--violet);
   --color-ok: var(--ok);
   --color-warn: var(--warn);
   --color-danger: var(--danger);
   --color-note: var(--note);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-chart: var(--chart);
+  --color-chart-hover: var(--chart-hover);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-fraunces);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
 }
 
 @keyframes arrive {

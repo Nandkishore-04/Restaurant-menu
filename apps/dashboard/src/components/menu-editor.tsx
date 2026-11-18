@@ -1,6 +1,7 @@
 "use client";
 
 import { formatMoney, type Schemas } from "@qrmenu/api-client";
+import { DishImage } from "@qrmenu/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useRef, useState } from "react";
@@ -157,7 +158,7 @@ export function MenuEditor() {
       <div className="mx-auto max-w-5xl px-5 py-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Menu</h1>
+            <h1 className="font-display text-3xl font-semibold">Menu</h1>
             <p className="mt-1 text-sm text-muted">
               {categories.length} categories · {allItems.length} dishes
               {soldOut > 0 && <span className="text-warn"> · {soldOut} sold out</span>}
@@ -356,7 +357,7 @@ function CategoryCard(p: {
               ↓
             </IconButton>
           </div>
-          <h2 className="text-lg font-semibold">{c.name}</h2>
+          <h2 className="font-display text-lg font-semibold">{c.name}</h2>
           <span className="text-sm text-muted">{p.itemCount}</span>
           {!c.is_active && (
             <span className="rounded bg-surface-2 px-2 py-0.5 text-xs font-semibold text-warn">
@@ -430,12 +431,14 @@ function CategoryCard(p: {
                   ↓
                 </IconButton>
               </div>
-              {item.image_url ? (
-                // eslint-disable-next-line @next/next/no-img-element -- restaurant-supplied URL
-                <img src={item.image_url} alt="" className="size-10 shrink-0 rounded-md object-cover" />
-              ) : (
-                <span className="size-10 shrink-0 rounded-md bg-surface-2" aria-hidden />
-              )}
+              <DishImage
+                name={item.name}
+                category={c.name}
+                imageUrl={item.image_url}
+                soldOut={!item.is_available}
+                iconSize={20}
+                className="size-12 shrink-0 rounded-lg"
+              />
               <button type="button" onClick={() => p.onEditItem(item)} className="min-w-0 flex-1 text-left">
                 <span className="flex items-center gap-2">
                   <DietMark dietary={item.dietary} />
@@ -649,6 +652,19 @@ function ItemEditor({
           className={fieldClass}
         />
       </label>
+
+      <div className="flex items-center gap-4">
+        <DishImage
+          name={name || "New dish"}
+          category={categories.find((c) => c.id === categoryId)?.name}
+          imageUrl={imageUrl.trim() || null}
+          iconSize={28}
+          className="size-20 shrink-0 rounded-xl"
+        />
+        <p className="text-sm text-muted">
+          Preview. Dishes without a photo get a tasteful placeholder automatically.
+        </p>
+      </div>
 
       <label className="block text-sm font-medium">
         Photo URL <span className="font-normal text-muted">(optional)</span>

@@ -1,9 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { signInWithDevToken, useAuth } from "@/lib/auth";
-import { DEV_AUTH_ENABLED, SUPABASE_AUTH_ENABLED } from "@/lib/config";
+import { useAuth } from "@/lib/auth";
+import { DEMO_HOME_URL, DEMO_MODE, DEMO_ROLES, SUPABASE_AUTH_ENABLED } from "@/lib/config";
 import { getSupabase } from "@/lib/supabase";
 
 const input =
@@ -12,15 +13,18 @@ const input =
 export function LoginForm() {
   const auth = useAuth();
   const router = useRouter();
+  const params = useSearchParams();
+  // Only allow same-site paths, never an absolute URL (open-redirect guard).
+  const nextParam = params.get("next");
+  const next = nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [devToken, setDevToken] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (auth.status === "signedIn") router.replace("/");
-  }, [auth.status, router]);
+    if (auth.status === "signedIn") router.replace(next);
+  }, [auth.status, router, next]);
 
   async function signIn(e: React.FormEvent) {
     e.preventDefault();
@@ -42,12 +46,13 @@ export function LoginForm() {
         <form onSubmit={signIn} className="mt-8 space-y-4">
           <label className="block text-sm font-medium">
             Email
-            <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={input} />
+            <input type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} className={input} />
           </label>
           <label className="block text-sm font-medium">
             Password
             <input
               type="password"
+              autoComplete="current-password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -63,31 +68,29 @@ export function LoginForm() {
         </form>
       )}
 
-      {DEV_AUTH_ENABLED && (
-        <form
-          className="mt-8 rounded-xl border border-dashed border-warn/50 p-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (devToken.trim()) signInWithDevToken(devToken);
-          }}
-        >
-          <p className="text-sm font-semibold text-warn">Local development sign-in</p>
-          <p className="mt-1 text-xs text-muted">
-            Paste the <code>staff_token</code> printed by{" "}
-            <code>uv run python -m scripts.seed_demo</code>.
-          </p>
-          <textarea
-            value={devToken}
-            onChange={(e) => setDevToken(e.target.value)}
-            rows={3}
-            aria-label="Staff token"
-            className="mt-3 w-full rounded-lg border border-border bg-surface-2 p-2 font-mono text-xs outline-none focus:border-brand"
-          />
-          <button className="mt-2 h-10 w-full rounded-lg bg-surface-2 font-semibold">Use token</button>
-        </form>
+      {DEMO_MODE && (
+        <div className="mt-8 rounded-xl border border-border bg-surface p-4">
+          <p className="text-sm font-semibold">Demo: open a role in one click</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {Object.entries(DEMO_ROLES).map(([key, r]) => (
+              <Link
+                key={key}
+                href={`/demo/${key}`}
+                className="flex h-10 items-center justify-center rounded-lg border border-border text-sm font-medium hover:border-brand"
+              >
+                {r.label}
+              </Link>
+            ))}
+          </div>
+          {DEMO_HOME_URL && (
+            <a href={DEMO_HOME_URL} className="mt-3 block text-center text-sm text-muted underline">
+              ← Back to demo home
+            </a>
+          )}
+        </div>
       )}
 
-      {!SUPABASE_AUTH_ENABLED && !DEV_AUTH_ENABLED && (
+      {!SUPABASE_AUTH_ENABLED && (
         <p className="mt-8 text-danger">
           Sign-in is not configured. Set NEXT_PUBLIC_SUPABASE_URL and
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.

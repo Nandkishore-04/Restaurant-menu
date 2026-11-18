@@ -1,0 +1,17 @@
+# Never upload local secrets or build/cache folders when deploying from this machine.
+**/.env
+**/.env.*
+!**/.env.example
+**/node_modules
+**/.venv
+**/.next
+**/.next-build
+**/.turbo
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+apps/api/tests
+supabase/.temp
+supabase/.branches
+.git

@@ -68,8 +68,9 @@ cp apps/api/.env.example apps/api/.env          # fill in keys from `npx supabas
 cp apps/web/.env.example apps/web/.env.local
 cp apps/dashboard/.env.example apps/dashboard/.env.local
 
-pnpm --filter @qrmenu/api migrate   # apply DB migrations
-pnpm dev                            # api :8000, web :3000, dashboard :3001
+pnpm api:migrate                    # apply DB migrations
+pnpm dev:api                        # API on :8010 (separate terminal)
+pnpm dev                            # web :3000, dashboard :3001
 ```
 
 ## The apps
@@ -82,11 +83,36 @@ pnpm dev                            # api :8000, web :3000, dashboard :3001
 - Placing an order asks for confirmation first.
 - The orders screen tracks each order: Sent → Accepted → Cooking → Ready → Served, plus the table total so far.
 
+**Paying the bill** (customer app, "Pay bill" once orders are placed):
+- A full-screen checkout shows the amount due. The bill combines every order at the table, merges repeat dishes and skips cancelled orders.
+- **UPI:** scan the QR code, or tap Google Pay, PhonePe, Paytm or "Other UPI" to open the app with the amount filled in. Then tap "I've completed the payment", optionally adding the UPI transaction ID (UTR).
+- **Cash:** tells staff the table is ready to pay.
+- A payment stays **pending** until staff confirm it on the dashboard's **Payments** tab. A guest's "I've paid" is never treated as proof.
+- The guest then sees a receipt. If staff mark it "not received", the guest is asked to try again.
+- **UPI ID:** each restaurant sets its own with `PATCH /v1/restaurants/{id}` (`upi_vpa`, `upi_payee_name`). Until then, guests see a **demo** QR using `demo.restaurant@example`. That handle doesn't exist, so real UPI apps reject it and no money can be sent by mistake.
+
 **Kitchen display** (`apps/dashboard`, http://localhost:3001):
 - A dark board with columns New, Accepted, Cooking and Ready to serve. Oldest orders come first.
 - Each ticket shows the order number, table, how long it has waited (amber after 10 min, red after 20), items and highlighted notes.
 - A single button advances each ticket. Cancel always needs a confirmation step.
 - An optional chime plays for new orders.
+
+**Restaurant admin portal** (`apps/dashboard`). Tabs depend on the person's role:
+
+| Tab | Who | What |
+|---|---|---|
+| Overview | owner, manager | Today's sales, orders and average bill vs yesterday; payments collected; live tables and kitchen; daily sales chart (7/14/30 days, with a table view); top dishes |
+| Kitchen | everyone | Live order board |
+| Orders | owner, manager, waiter | Order history by day, filters, expandable details |
+| Tables | owner, manager, waiter | Live status (free / occupied / payment pending / paid) with bill due; close a table; QR code per table; printable A4 QR cards; add or edit tables; replace a QR code if a photo of it is being misused |
+| Payments | owner, manager, waiter | Confirm UPI payments, collect cash |
+| Menu | owner, manager | Categories, dishes, sold out |
+| Staff | owner manages, manager views | Invite by a one-time link valid for 7 days (copy or share on WhatsApp), change roles, remove people. A restaurant always keeps at least one owner. |
+| Settings | owner, manager | Name, logo, GST rate and whether prices include it, UPI ID |
+
+After sign-in, owners and managers land on Overview, waiters on Tables, and kitchen staff on Kitchen.
+
+**Platform admin** (`/platform` in the dashboard, for the SaaS operator): platform-wide restaurants, orders and GMV, a daily GMV chart, and every restaurant with its owner, tables, staff, 30-day orders and GMV, last order, and UPI status. You can suspend or reactivate a restaurant; suspending turns off its QR codes. Platform admins are rows in `platform_admins`. The demo seed creates one; in production, add your own user id there.
 
 **Menu admin** (`apps/dashboard`, the Menu tab, owners and managers only):
 - Add, rename, hide/show, reorder and delete categories. A category can only be deleted once it's empty.
@@ -98,18 +124,20 @@ pnpm dev                            # api :8000, web :3000, dashboard :3001
 Both apps update live through Supabase Realtime when `NEXT_PUBLIC_REALTIME_ENABLED=true`.
 Otherwise they poll the API every 3s.
 
-### Local login without Supabase
-1. Run the API with `SUPABASE_JWT_SECRET` set.
-2. Run `uv run python -m scripts.seed_demo` in `apps/api`. It creates a demo restaurant and prints QR links and a `staff_token`.
-3. Set `NEXT_PUBLIC_DEV_AUTH=true` in `apps/dashboard/.env.local`.
-4. Paste the token on the dashboard login page.
+### Staff sign-in
+The dashboard signs staff in with Supabase Auth (email and password), so Supabase must be
+running and `NEXT_PUBLIC_SUPABASE_*` must be set. Demo data comes from
+`uv run python -m scripts.seed_demo` in `apps/api`, which creates restaurants, order history
+and table QR links. Then run `uv run python -m scripts.create_demo_logins` to create real Supabase
+logins for the demo. All of them use the password `demo-password-123`:
+`owner@`, `manager@`, `waiter@` and `chef@spiceroute.demo`, plus the platform admin `admin@qrmenu.demo`.
 
 ## Everyday commands
 
 | Command | What it does |
 |---|---|
-| `pnpm dev` | Run API + both apps |
-| `pnpm --filter @qrmenu/api test` | API tests (spins up a throwaway Postgres, no Docker needed) |
+| `pnpm dev` / `pnpm dev:api` | Run both apps / the API |
+| `pnpm api:test` | API tests (spins up a throwaway Postgres, no Docker needed) |
 | `pnpm lint` / `pnpm typecheck` / `pnpm build` | Across the whole repo |
 | `pnpm api:types` | Regenerate the TS client after changing API schemas |
 | `cd apps/api && uv run alembic revision --autogenerate -m "..."` | New migration after model changes |

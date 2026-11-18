@@ -15,7 +15,7 @@ import { OrderTicket } from "./order-ticket";
 
 const COLUMNS: { status: OrderStatus; title: string; accent: string }[] = [
   { status: "placed", title: "New", accent: "bg-new" },
-  { status: "accepted", title: "Accepted", accent: "bg-brand" },
+  { status: "accepted", title: "Accepted", accent: "bg-violet" },
   { status: "preparing", title: "Cooking", accent: "bg-warn" },
   { status: "ready", title: "Ready to serve", accent: "bg-ok" },
 ];
@@ -107,7 +107,7 @@ export function KitchenBoard() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-3">
-        <h1 className="text-lg font-bold">Kitchen display</h1>
+        <h1 className="font-display text-xl font-semibold">Kitchen display</h1>
         <div className="flex items-center gap-3 text-sm">
           <span className="flex items-center gap-2" title={lastSync !== null ? `Synced ${lastSync}s ago` : ""}>
             <span className={`size-2.5 rounded-full ${healthy ? "bg-ok" : "bg-warn animate-pulse"}`} />

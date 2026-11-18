@@ -112,9 +112,11 @@ export function OrderTicket({
                 className={`h-11 flex-1 rounded-lg font-semibold text-black disabled:opacity-50 ${
                   order.status === "placed"
                     ? "bg-new"
-                    : order.status === "ready"
-                      ? "bg-ok"
-                      : "bg-brand"
+                    : order.status === "accepted"
+                      ? "bg-violet"
+                      : order.status === "ready"
+                        ? "bg-ok"
+                        : "bg-warn"
                 }`}
               >
                 {next.label}

@@ -9,7 +9,11 @@
     "typecheck": "turbo run typecheck",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
-    "api:types": "pnpm --filter @qrmenu/api-client generate"
+    "api:types": "cd apps/api && uv run python -m scripts.export_openapi && pnpm --filter @qrmenu/api-client generate",
+    "dev:api": "cd apps/api && uv run fastapi dev app/main.py --port 8010",
+    "api:test": "cd apps/api && uv run pytest",
+    "api:lint": "cd apps/api && uv run ruff check . && uv run ruff format --check . && uv run mypy app",
+    "api:migrate": "cd apps/api && uv run alembic upgrade head"
   },
   "devDependencies": {
     "supabase": "^2.60.0",

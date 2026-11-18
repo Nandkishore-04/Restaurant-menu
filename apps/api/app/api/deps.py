@@ -2,10 +2,12 @@ from collections.abc import Awaitable, Callable
 from typing import Annotated
 from uuid import UUID
 
+import httpx
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 
+from app.core.config import get_settings
 from app.core.security import (
     AuthError,
     GuestIdentity,
@@ -15,7 +17,7 @@ from app.core.security import (
 )
 from app.db.session import system_session
 from app.models import MemberRole, PlatformAdmin, RestaurantMember
-from app.services.realtime import Publisher
+from app.services.realtime import Publisher, build_publisher
 
 _bearer = HTTPBearer(auto_error=False)
 Credentials = Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)]
@@ -46,7 +48,12 @@ async def current_guest(creds: Credentials) -> GuestIdentity:
 
 
 def get_publisher(request: Request) -> Publisher:
-    return request.app.state.publisher
+    # Serverless platforms may not run the lifespan hook, so build it on first use.
+    publisher = getattr(request.app.state, "publisher", None)
+    if publisher is None:
+        publisher = build_publisher(get_settings(), httpx.AsyncClient(timeout=5))
+        request.app.state.publisher = publisher
+    return publisher
 
 
 Staff = Annotated[StaffIdentity, Depends(current_staff)]
